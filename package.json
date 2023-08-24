@@ -18,8 +18,7 @@
     "dev": "npx tsc -w",
     "build": "npx tsc",
     "generate": "prisma generate",
-    "format": "prettier --write \"**/*.{js,jsx,ts,mjs,tsx,md,css,json}\"",
-    "postinstall": "husky install"
+    "format": "prettier --write \"**/*.{js,jsx,ts,mjs,tsx,md,css,json}\""
   },
   "dependencies": {
     "@prisma/generator-helper": "5.2.0",
