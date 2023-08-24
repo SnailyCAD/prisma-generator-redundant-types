@@ -17,6 +17,7 @@ generatorHandler({
     options.dmmf.datamodel.models.forEach((model) => {
       const type = `export interface ${model.name} {
         ${model.fields
+          .filter((v) => ["scalar", "enum"].includes(v.kind))
           .map((field) => {
             const typeScriptType = getTypeScriptType(field.type);
             const nullable = field.isRequired ? "" : "| null";
