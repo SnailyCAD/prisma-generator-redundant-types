@@ -1,7 +1,7 @@
 {
   "name": "@snailycad/prisma-generator-redundant-types",
   "description": "Provide a description about your generator",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "dist/generator.js",
   "license": "MIT",
   "bin": {
@@ -16,7 +16,7 @@
     "build": "npx tsc",
     "generate": "prisma generate",
     "format": "prettier --write \"**/*.{js,jsx,ts,mjs,tsx,md,css,json}\"",
-    "preinstall": "husky install"
+    "postinstall": "husky install"
   },
   "dependencies": {
     "@prisma/generator-helper": "5.2.0",
