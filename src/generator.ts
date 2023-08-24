@@ -1,31 +1,64 @@
 import { generatorHandler, GeneratorOptions } from '@prisma/generator-helper'
-import { logger } from '@prisma/sdk'
-import path from 'path'
-import { GENERATOR_NAME } from './constants'
-import { genEnum } from './helpers/genEnum'
-import { writeFileSafely } from './utils/writeFileSafely'
+import path from 'node:path'
 
-const { version } = require('../package.json')
+import { writeFileSafely } from './utils/writeFileSafely'
+import { genEnum } from './helpers/genEnum'
 
 generatorHandler({
   onManifest() {
-    logger.info(`${GENERATOR_NAME}:Registered`)
     return {
-      version,
-      defaultOutput: '../generated',
-      prettyName: GENERATOR_NAME,
+      defaultOutput: './json-schema',
+      prettyName: 'Prisma JSON Schema Generator',
     }
   },
   onGenerate: async (options: GeneratorOptions) => {
-    options.dmmf.datamodel.enums.forEach(async (enumInfo) => {
-      const tsEnum = genEnum(enumInfo)
+    let modelStr = ''
 
-      const writeLocation = path.join(
-        options.generator.output?.value!,
-        `${enumInfo.name}.ts`,
-      )
+    options.dmmf.datamodel.models.forEach((model) => {
+      const type = `export interface ${model.name} {
+        ${model.fields
+          .map((field) => {
+            const typeScriptType = getTypeScriptType(field.type)
+            const nullable = field.isRequired ? '' : '| null'
+            const list = field.isList ? '[]' : ''
 
-      await writeFileSafely(writeLocation, tsEnum)
+            return `${field.name}: ${typeScriptType}${nullable}${list}`
+          })
+          .join('\n')}
+      }`
+
+      modelStr += type + '\n\n'
     })
+
+    options.dmmf.datamodel.enums.forEach((enumType) => {
+      const type = genEnum(enumType)
+
+      modelStr += type + '\n\n'
+    })
+
+    await writeFileSafely(
+      path.join(options.generator.output?.value!, 'index.ts'),
+      modelStr,
+    )
   },
 })
+
+function getTypeScriptType(type: string) {
+  switch (type) {
+    case 'Decimal':
+    case 'Int':
+    case 'Float':
+    case 'BigInt':
+      return 'number'
+    case 'DateTime':
+      return 'Date'
+    case 'Boolean':
+      return 'boolean'
+    case 'Json':
+      return 'any'
+    case 'String':
+      return 'string'
+    default:
+      return type
+  }
+}
