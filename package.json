@@ -7,6 +7,9 @@
   "bin": {
     "prisma-generator-redundant-types": "dist/bin.js"
   },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=18.0"
   },
