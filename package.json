@@ -1,7 +1,7 @@
 {
   "name": "@snailycad/prisma-generator-redundant-types",
   "description": "Provide a description about your generator",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "main": "dist/generator.js",
   "license": "MIT",
   "bin": {

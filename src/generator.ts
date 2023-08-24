@@ -1,8 +1,7 @@
 import { generatorHandler, GeneratorOptions } from "@prisma/generator-helper";
 import path from "node:path";
 
-import { writeFileSafely } from "./utils/writeFileSafely";
-import { genEnum } from "./helpers/genEnum";
+import { writeFileSafely } from "./utils/utils";
 import { GENERATOR_NAME } from "./constants";
 
 generatorHandler({
@@ -28,16 +27,29 @@ generatorHandler({
           .join("\n")}
       }`;
 
-      modelStr += type + "\n\n";
+      modelStr += `${type}\n\n`;
     });
 
     options.dmmf.datamodel.enums.forEach((enumType) => {
-      const type = genEnum(enumType);
+      const type = `export const ${enumType.name} = {
+        ${enumType.values
+          .map((value) => {
+            return `${value.name}: "${value.name}",`;
+          })
+          .join("\n")}
+      } as const;
 
-      modelStr += type + "\n\n";
+export type ${enumType.name} = (typeof ${enumType.name})[keyof typeof ${enumType.name}];`;
+
+      modelStr += `${type}\n\n`;
     });
 
-    await writeFileSafely(path.join(options.generator.output?.value!, "index.ts"), modelStr);
+    const outputDir = options.generator.output?.value;
+    if (!outputDir) {
+      throw new Error("No output directory specified");
+    }
+
+    await writeFileSafely(path.join(outputDir, "index.ts"), modelStr);
   },
 });
 
@@ -46,17 +58,23 @@ function getTypeScriptType(type: string) {
     case "Decimal":
     case "Int":
     case "Float":
-    case "BigInt":
+    case "BigInt": {
       return "number";
-    case "DateTime":
+    }
+    case "DateTime": {
       return "Date";
-    case "Boolean":
+    }
+    case "Boolean": {
       return "boolean";
-    case "Json":
+    }
+    case "Json": {
       return "any";
-    case "String":
+    }
+    case "String": {
       return "string";
-    default:
+    }
+    default: {
       return type;
+    }
   }
 }
