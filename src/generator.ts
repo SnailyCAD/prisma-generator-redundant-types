@@ -1,64 +1,62 @@
-import { generatorHandler, GeneratorOptions } from '@prisma/generator-helper'
-import path from 'node:path'
+import { generatorHandler, GeneratorOptions } from "@prisma/generator-helper";
+import path from "node:path";
 
-import { writeFileSafely } from './utils/writeFileSafely'
-import { genEnum } from './helpers/genEnum'
+import { writeFileSafely } from "./utils/writeFileSafely";
+import { genEnum } from "./helpers/genEnum";
+import { GENERATOR_NAME } from "./constants";
 
 generatorHandler({
   onManifest() {
     return {
-      defaultOutput: './json-schema',
-      prettyName: 'Prisma JSON Schema Generator',
-    }
+      requiresGenerators: ["prisma-client-js"],
+      prettyName: GENERATOR_NAME,
+    };
   },
   onGenerate: async (options: GeneratorOptions) => {
-    let modelStr = ''
+    let modelStr = "";
 
     options.dmmf.datamodel.models.forEach((model) => {
       const type = `export interface ${model.name} {
         ${model.fields
           .map((field) => {
-            const typeScriptType = getTypeScriptType(field.type)
-            const nullable = field.isRequired ? '' : '| null'
-            const list = field.isList ? '[]' : ''
+            const typeScriptType = getTypeScriptType(field.type);
+            const nullable = field.isRequired ? "" : "| null";
+            const list = field.isList ? "[]" : "";
 
-            return `${field.name}: ${typeScriptType}${nullable}${list}`
+            return `${field.name}: ${typeScriptType}${nullable}${list}`;
           })
-          .join('\n')}
-      }`
+          .join("\n")}
+      }`;
 
-      modelStr += type + '\n\n'
-    })
+      modelStr += type + "\n\n";
+    });
 
     options.dmmf.datamodel.enums.forEach((enumType) => {
-      const type = genEnum(enumType)
+      const type = genEnum(enumType);
 
-      modelStr += type + '\n\n'
-    })
+      modelStr += type + "\n\n";
+    });
 
-    await writeFileSafely(
-      path.join(options.generator.output?.value!, 'index.ts'),
-      modelStr,
-    )
+    await writeFileSafely(path.join(options.generator.output?.value!, "index.ts"), modelStr);
   },
-})
+});
 
 function getTypeScriptType(type: string) {
   switch (type) {
-    case 'Decimal':
-    case 'Int':
-    case 'Float':
-    case 'BigInt':
-      return 'number'
-    case 'DateTime':
-      return 'Date'
-    case 'Boolean':
-      return 'boolean'
-    case 'Json':
-      return 'any'
-    case 'String':
-      return 'string'
+    case "Decimal":
+    case "Int":
+    case "Float":
+    case "BigInt":
+      return "number";
+    case "DateTime":
+      return "Date";
+    case "Boolean":
+      return "boolean";
+    case "Json":
+      return "any";
+    case "String":
+      return "string";
     default:
-      return type
+      return type;
   }
 }
