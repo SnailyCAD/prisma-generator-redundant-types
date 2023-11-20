@@ -56,7 +56,7 @@ generatorHandler({
       throw new Error("No output directory specified");
     }
 
-    await writeFileSafely(path.join(outputDir, "types.ts"), exportedTypes);
+    await writeFileSafely(path.join(outputDir, "index.ts"), exportedTypes);
   },
 });
 
