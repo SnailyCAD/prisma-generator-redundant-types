@@ -12,45 +12,51 @@ generatorHandler({
     };
   },
   onGenerate: async (options: GeneratorOptions) => {
-    let modelStr = "";
+    let exportedTypes = "";
+    const dataModel = options.dmmf.datamodel;
 
-    options.dmmf.datamodel.models.forEach((model) => {
-      const type = `export interface ${model.name} {
-        ${model.fields
-          .filter((v) => ["scalar", "enum"].includes(v.kind))
-          .map((field) => {
-            const typeScriptType = getTypeScriptType(field.type);
-            const nullable = field.isRequired ? "" : "| null";
-            const list = field.isList ? "[]" : "";
+    // Convert Prisma models to TypeScript interfaces
+    for (const model of dataModel.models) {
+      exportedTypes += `export interface ${model.name} {\n`;
 
-            return `${field.name}: ${typeScriptType}${nullable}${list}`;
-          })
-          .join("\n")}
-      }`;
+      // Only convert fields with kind "scalar" and "enum
+      const scalarAndEnumFields = model.fields.filter((field) =>
+        ["scalar", "enum"].includes(field.kind),
+      );
 
-      modelStr += `${type}\n\n`;
-    });
+      for (const field of scalarAndEnumFields) {
+        // A utility function to convert Prisma types to TypeScript types
+        // We'll create this function later.
+        const typeScriptType = getTypeScriptType(field.type);
+        // Whether the field should be optional
+        const nullability = field.isRequired ? "" : "| null";
+        // Whether the field should be an array
+        const list = field.isList ? "[]" : "";
 
-    options.dmmf.datamodel.enums.forEach((enumType) => {
-      const type = `export const ${enumType.name} = {
-        ${enumType.values
-          .map((value) => {
-            return `${value.name}: "${value.name}",`;
-          })
-          .join("\n")}
-      } as const;
+        exportedTypes += `${field.name}: ${typeScriptType}${nullability}${list}\n`;
+      }
 
-export type ${enumType.name} = (typeof ${enumType.name})[keyof typeof ${enumType.name}];`;
+      exportedTypes += `}\n\n`;
+    }
 
-      modelStr += `${type}\n\n`;
-    });
+    for (const enumType of dataModel.enums) {
+      exportedTypes += `export const ${enumType.name} = {`;
+
+      for (const enumValue of enumType.values) {
+        exportedTypes += `${enumValue.name}: "${enumValue.name}",\n`;
+      }
+
+      exportedTypes += "} as const;\n";
+
+      exportedTypes += `export type ${enumType.name} = (typeof ${enumType.name})[keyof typeof ${enumType.name}];\n\n`;
+    }
 
     const outputDir = options.generator.output?.value;
     if (!outputDir) {
       throw new Error("No output directory specified");
     }
 
-    await writeFileSafely(path.join(outputDir, "index.ts"), modelStr);
+    await writeFileSafely(path.join(outputDir, "types.ts"), exportedTypes);
   },
 });
 

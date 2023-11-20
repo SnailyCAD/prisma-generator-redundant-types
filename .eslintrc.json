@@ -2,5 +2,8 @@
   "extends": ["@casperiv/eslint-config"],
   "parserOptions": {
     "project": "./tsconfig.json"
+  },
+  "rules": {
+    "capitalized-comments": "off"
   }
 }

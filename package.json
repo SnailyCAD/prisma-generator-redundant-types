@@ -1,7 +1,7 @@
 {
   "name": "@snailycad/prisma-generator-redundant-types",
   "description": "Provide a description about your generator",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "main": "dist/generator.js",
   "license": "MIT",
   "bin": {
@@ -21,20 +21,19 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,mjs,tsx,md,css,json}\""
   },
   "dependencies": {
-    "@prisma/generator-helper": "5.2.0",
-    "@prisma/internals": "5.2.0"
+    "@prisma/generator-helper": "5.6.0"
   },
   "devDependencies": {
     "@casperiv/eslint-config": "^8.0.0",
-    "@prisma/client": "5.2.0",
+    "@prisma/client": "5.6.0",
     "@prisma/sdk": "3.15.2",
-    "@types/node": "20.5.4",
-    "eslint": "^8.47.0",
+    "@types/node": "20.9.2",
+    "eslint": "^8.54.0",
     "husky": "^8.0.3",
-    "lint-staged": "^14.0.1",
-    "prettier": "^3.0.2",
-    "prisma": "5.2.0",
-    "typescript": "5.1.6"
+    "lint-staged": "^15.1.0",
+    "prettier": "^3.1.0",
+    "prisma": "5.6.0",
+    "typescript": "5.2.2"
   },
   "lint-staged": {
     "**/*.{js,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,sass}\"": "prettier --write"
